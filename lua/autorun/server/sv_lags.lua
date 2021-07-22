@@ -3,17 +3,15 @@ util.AddNetworkString( "lags_sendmsg" )
 
 -- Vars
 local lags = {}
-
 -- Table vars
-lags.interval = 1/engine.TickInterval()
-lags.maxDiff = lags.interval*.76
+lags.interval = 1 / engine.TickInterval()
+lags.maxLag = lags.interval * .24
 lags.prevTime = SysTime()
-lags.lastMsg = 0
-lags.lastLag = 0
-lags.lastMsg = ""
---
+lags.maxDiff = lags.interval * 6
+lags.lags = 0
+lags.lastMsgTime = 0
 
--- freeze ents --
+-- Function for freeze all ents on the server
 function lags.FrAll () 
 	for i,e in ipairs(ents.GetAll()) do
 		local phys = e:GetPhysicsObject()
@@ -25,76 +23,43 @@ function lags.FrAll ()
 end
 --
 
--- Send warnings to players
+-- Function for send Msg to player and server console
 function lags.sendMsg (str)
-	if ( lags.lastMsg == str) then return end
-	lags.lastMsg = str
+	-- anti-flood
+	if ( lags.lastMsgTime > SysTime() ) then return end
 
-	print( "[Lags]: Diff", lags.tickDiff, "maxDiff", lags.maxDiff )
+	print("[Lags]:", str)
 
+	-- send msg to players
 	net.Start("lags_sendmsg")
-		if (lags.lvl == nil) then net.WriteString(str) net.Broadcast() return end
-		net.WriteString(":warning: Уровень: " .. lags.lvl .. " :warning: - " .. str)
+		net.WriteString(str)
 	net.Broadcast()
+
+	lags.lastMsgTime = SysTime()
 end
 --
 
 -- Lags checkcer
 hook.Add("Think", "lags", function ()
-	lags.tickDiff = ( lags.interval - (1 / (SysTime() - lags.prevTime) ) )
+	if (game.GetTimeScale() != 1) then return end
+
+	lags.tickDiff = lags.interval - ( 1 / ( SysTime() - lags.prevTime ) )
 	lags.prevTime = SysTime()
 
-	if ( lags.tickDiff >= lags.maxDiff ) then
-		lags.lvl = math.Clamp( math.Round( lags.tickDiff / (lags.maxDiff*.84) ) , 1, 5)
-		
-		if ( lags.lvl == 1 ) then
-			lags.lastLag = SysTime()
+	-- if server lagged
+	if ( lags.tickDiff*lags.interval >= lags.maxLag ) then 
+		if ( lags.lags < lags.maxDiff ) then 
+			lags.lags = lags.lags + lags.tickDiff
+
+			if ( lags.lags < lags.maxDiff) then return end
 
 			lags.FrAll()
-			lags.sendMsg("Фризим пропы")
+			lags.sendMsg(":warning: Обнаружены лаги, фризим энтити")
 		end
-		if ( lags.lvl == 2 and game.GetTimeScale() >= .8 ) then
-			lags.lastLag = SysTime()
-
-			lags.FrAll()
-			game.SetTimeScale(.8)
-			lags.sendMsg("Фризим пропы, останавливаем E2 чипы, замедляем время на 20% ")
-		end
-		if ( lags.lvl == 3 and game.GetTimeScale() >= .6 ) then
-			lags.lastLag = SysTime()
-
-			lags.FrAll()
-			RunConsoleCommand("wire_expression2_quotatick", "0")
-			game.SetTimeScale(.6)
-			lags.sendMsg("Фризим пропы, останавливаем E2 чипы, замедляем время на 40%")
-		end
-		if ( lags.lvl == 4 and game.GetTimeScale() >= .6) then
-			lags.lastLag = SysTime()
-
-			lags.FrAll()
-			RunConsoleCommand("wire_expression2_quotatick", "0")
-			game.SetTimeScale(.4)
-			lags.sendMsg("Фризим пропы, останавливаем E2 чипы, замедляем время на 40%")
-		end
-		if ( lags.lvl == 5 and game.GetTimeScale() >= .6) then
-			lags.lastLag = SysTime()
-
-			game.CleanUpMap(false, {})
-			RunConsoleCommand("wire_expression2_quotatick", "0")
-			game.SetTimeScale(.4)
-			lags.sendMsg("Карта очищена, замедляем время на 40%")
-		end
-		return
-	end
-	--
-
-	-- If lags == nil
-	if ( lags.lastLag + 10 < SysTime() and lags.lvl != nil ) then 
-		lags.lastLag = 0
-		lags.lvl = nil
-		game.SetTimeScale(1)
-		RunConsoleCommand("wire_expression2_quotatick", "50000")
-		lags.sendMsg("Лаги сброшены :green_heart:")
-	end
+	end 
+	lags.lags = 0
 	--
 end)
+--
+
+print("------------------------\n\n", "Lags LOADED", "\n\n------------------------" )
