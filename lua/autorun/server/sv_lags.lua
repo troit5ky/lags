@@ -23,6 +23,15 @@ function lags.FrAll ()
 end
 --
 
+-- Kill E2s
+function lags.StopE2s () 
+	local chips = ents.FindByClass("gmod_wire_expression2")
+	for k,e2 in pairs(chips) do
+		e2:PCallHook( "destruct" )
+	end
+end
+--
+
 -- Function for send Msg to player and server console
 function lags.sendMsg (str)
 	-- anti-flood
@@ -54,7 +63,9 @@ hook.Add("Think", "lags", function ()
 			if ( lags.lags < lags.maxDiff) then return end
 
 			lags.FrAll()
-			lags.sendMsg(":warning: Обнаружены лаги, фризим энтити")
+			lags.StopE2s()
+
+			lags.sendMsg(":warning: Обнаружены лаги, фризим энтити, стопим E2")
 		end
 	end 
 	lags.lags = 0
