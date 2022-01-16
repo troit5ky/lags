@@ -65,6 +65,7 @@ function lags.FreezeAll()
 
 		if IsValid(phys) and not ent:IsPlayer() then 
 			phys:EnableMotion(false)
+			phys:Sleep()
 		end
 	end
 end
@@ -109,7 +110,7 @@ end
 --
 
 -- Lags checkcer
-hook.Add("Tick", "lags", function ()
+timer.Create('Lags', 0, 0, function()
 	lags.tickDiff = lags.interval - ( 1 / ( SysTime() - lags.prevTime ) )
 	lags.prevTime = SysTime()
 
