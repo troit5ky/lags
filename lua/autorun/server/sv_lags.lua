@@ -2,8 +2,18 @@
 util.AddNetworkString( "lags_sendmsg" )
 
 -- Vars
-local lags = {}
--- Table vars
+local lags = {
+	interval = true,
+	maxLag = true,
+	prevTime = true,
+	maxDiff = true,
+	lags = true,
+	lastMsgTime = true,
+	lastMsg = "",
+	lvl = true,
+	lastLag = true
+}
+-- Lags vars
 lags.interval = 1 / engine.TickInterval()
 lags.maxLag = lags.interval * .2
 lags.prevTime = SysTime()
