@@ -32,13 +32,14 @@ function lags.FreezeConflict ()
 		local phys = e:GetPhysicsObject()
 
 		if ( IsValid(phys) ) then
-			if ( phys:GetStress() >= 2 or phys:IsPenetrating() ) then 
+			if ( phys:GetStress() >= 2 or phys:IsPenetrating() and e:GetMoveType() ~= 7 ) then 
 				local owner = e:CPPIGetOwner()
+				
 				if ( owner != nil ) then
 					local name = owner:Name()
 					lags.sendMsg( Format("%s, твои конфликтующие пропы заморожены!", name) )
 				end
-				phys:EnableMotion(false)
+			phys:EnableMotion(false)
 			end
 		end
 	end
@@ -53,13 +54,14 @@ function lags.ClearConflict ()
 		local phys = e:GetPhysicsObject()
 
 		if ( IsValid(phys) ) then
-			if ( phys:GetStress() >= 2 or phys:IsPenetrating() ) then 
+			if ( phys:GetStress() >= 2 or phys:IsPenetrating() and e:GetMoveType() ~= 7 ) then 
 				local owner = e:CPPIGetOwner()
+				
 				if ( owner != nil ) then
 					local name = owner:Name()
 					lags.sendMsg( Format("%s, твои конфликтующие пропы удалены", name) )
 				end
-				e:Remove()
+			e:Remove()
 			end
 		end
 	end
@@ -73,7 +75,7 @@ function lags.FreezeAll()
 	for _,ent in ipairs(ents.GetAll()) do
 		local phys = ent:GetPhysicsObject()
 
-		if IsValid(phys) and not ent:IsPlayer() then 
+		if IsValid(phys) and not ent:IsPlayer() and e:GetMoveType() ~= 7 then 
 			phys:EnableMotion(false)
 			phys:Sleep()
 		end
@@ -149,6 +151,7 @@ timer.Create('Lags', 0, 0, function()
 			end 
 			if ( lags.lvl >= 3 ) then 
 				lags.SetTimeScale(0.8)
+				lags.ClearConflict()
 				lags.FreezeAll()
 				lags.StopE2s()
 			end 
