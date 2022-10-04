@@ -39,7 +39,8 @@ function lags.FreezeConflict ()
 					local name = owner:Name()
 					lags.sendMsg( Format("%s, твои конфликтующие пропы заморожены!", name) )
 				end
-			phys:EnableMotion(false)
+
+				phys:EnableMotion(false)
 			end
 		end
 	end
@@ -61,7 +62,8 @@ function lags.ClearConflict ()
 					local name = owner:Name()
 					lags.sendMsg( Format("%s, твои конфликтующие пропы удалены", name) )
 				end
-			e:Remove()
+
+				e:Remove()
 			end
 		end
 	end
