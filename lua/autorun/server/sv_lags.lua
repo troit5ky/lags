@@ -74,10 +74,10 @@ end
 function lags.FreezeAll() 
 	lags.sendMsg("фриз всех энтити")
 
-	for _,ent in ipairs(ents.GetAll()) do
-		local phys = ent:GetPhysicsObject()
+	for _,e in ipairs(ents.GetAll()) do
+		local phys = e:GetPhysicsObject()
 
-		if IsValid(phys) and not ent:IsPlayer() and e:GetMoveType() ~= 7 then 
+		if IsValid(phys) and not e:IsPlayer() and e:GetMoveType() ~= 7 then 
 			phys:EnableMotion(false)
 			phys:Sleep()
 		end
