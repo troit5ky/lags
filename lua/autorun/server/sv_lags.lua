@@ -11,7 +11,8 @@ local lags = {
 	lastMsgTime = true,
 	lastMsg = "",
 	lvl = true,
-	lastLag = true
+	lastLag = true,
+	lastViolators = {}
 }
 -- Lags vars
 lags.interval = 1 / engine.TickInterval()
@@ -26,6 +27,8 @@ lags.lastLag = SysTime()
 
 -- Function for freeze conflict ents on the server
 function lags.FreezeConflict () 
+	lags.lastViolators = nil
+	lags.lastViolators = {}
 	lags.sendMsg("поиск конфликтов...")
 
 	for _,e in ipairs(ents.GetAll()) do
@@ -36,8 +39,13 @@ function lags.FreezeConflict ()
 				local owner = e:CPPIGetOwner()
 				
 				if ( owner != nil ) then
-					local name = owner:Name()
-					lags.sendMsg( Format("%s, твои конфликтующие пропы заморожены!", name) )
+
+					if !lags.lastViolators[ owner:SteamID() ] then
+						local name = owner:Name()
+						lags.sendMsg( Format("%s, твои конфликтующие пропы заморожены", name) )
+						lags.lastViolators[ owner:SteamID() ] = true
+					end
+
 				end
 
 				phys:EnableMotion(false)
@@ -49,6 +57,8 @@ end
 
 -- Function for clean conflict ents on the server
 function lags.ClearConflict () 
+	lags.lastViolators = nil
+	lags.lastViolators = {}
 	lags.sendMsg("поиск конфликтов...")
 
 	for _,e in ipairs(ents.GetAll()) do
@@ -59,8 +69,13 @@ function lags.ClearConflict ()
 				local owner = e:CPPIGetOwner()
 				
 				if ( owner != nil ) then
-					local name = owner:Name()
-					lags.sendMsg( Format("%s, твои конфликтующие пропы удалены", name) )
+
+					if !lags.lastViolators[ owner:SteamID() ] then
+						local name = owner:Name()
+						lags.sendMsg( Format("%s, твои конфликтующие пропы удалены", name) )
+						lags.lastViolators[ owner:SteamID() ] = true
+					end
+
 				end
 
 				e:Remove()
