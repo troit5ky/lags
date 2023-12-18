@@ -110,6 +110,16 @@ function lags.StopE2s()
 	end
 end
 --
+-- Kill SF Chips
+function lags.StopSFs() 
+	lags.sendMsg("Остановка Starfall чипов...")
+
+	local chips = ents.FindByClass("starfall_processor")
+	for k,e2 in pairs(chips) do
+		e2:Error({message = "[lags] Terminated", traceback = ""})
+	end
+end
+--
 
 -- For timescale control
 function lags.SetTimeScale( scale ) 
@@ -171,6 +181,7 @@ timer.Create('Lags', 0, 0, function()
 				lags.ClearConflict()
 				lags.FreezeAll()
 				lags.StopE2s()
+				lags.StopSFs()
 			end 
 			if ( lags.lvl >= 4 ) then 
 				lags.SetTimeScale(0.6)
